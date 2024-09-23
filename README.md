@@ -104,6 +104,7 @@ MVP функционал:
 
 Разбиение по доменам.
 
+x.com - единственный домен
 
 
 
@@ -136,7 +137,9 @@ MVP функционал:
 | изменение настроек профиля             | 36	             | 36                | 12            | 92        | 24                |
 | подписка на / отписка от пользователя  | 108               | 108               | 35            | 277       | 71                |
 
+DNS балансировка - Latency-based DNS
 Anycast балансировка - BGP Anycast
+
 ### Список источников:
 1. [X](https://x.com/ "сам твиттер")
 2. [Statista](https://www.statista.com/statistics/242606/number-of-active-twitter-users-in-selected-countries/)
