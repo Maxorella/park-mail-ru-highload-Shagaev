@@ -173,95 +173,25 @@ Anycast балансировка - BGP Anycast.
 
 Отказоустойчивость: Будем использовать 2 кластера в Kubernetes с Autoscaling, что позволит в случае сбоя одного из кластеров обеспечить доступность к сервису, а autoscaling позволит увеличивать/уменьшать количество реплик в зависимости от нагрузки.
 
+### Логическая схема БД и Физическая схема БД
 
+![Схема бд](/Highload_Maxorella.png)
 
-### Логическая схема БД
-
-```mermaid
-erDiagram    
-    User {
-        BIGINT user_id PK
-        TEXT username
-        TEXT password_hash
-        VARCHAR(32) password_salt
-        TEXT email UK
-        TEXT path_to_avatar
-        TEXT bio
-        JSON settings
-        TIMESTAMPZ updated_at
-        TIMESTAMPZ created_at
-        DATE birthdate
-        ENUM status
-    }
-
-    Tweet {
-        BIGINT tweet_id PK,FK
-        BIGINT user_id FK
-        BIGINT parent_id
-        TEXT content
-        JSON media
-        VARCHAR(30)[] hashtag
-        TIMESTAMPZ updated_at
-        TIMESTAMPZ created_at
-        ENUM status
-    }
-
-    Tweet |{--|| User : user_tweets
-
-    TweetStat {
-        BIGINT tweet_id PK,FK
-        INT view_count  
-        INT like_count
-        INT retweet_count
-        INT status
-    }
-
-    Tweet ||--|| TweetStat : tweet_statistics
-
-    Comment {
-        BIGINT comment_id PK
-        BIGINT tweet_id FK
-        BIGINT user_id FK
-        TEXT content
-        JSON media
-        BIGINT parent_comment_id
-        TIMESTAMPZ updated_at
-        TIMESTAMPZ created_at
-        ENUM status
-    }
-    Comment ||--|| Tweet : tweet_comments
-    Comment ||--|| User : user_comments
-
-    TweetHashtag {
-        BIGINT hashtag_id FK
-        BIGINT tweet_id
-    }
-    TweetHashtag ||--|| Tweet : tweet_hashtags
-
-    Session {
-        BIGINT session_id PK
-        BIGINT user_id FK
-        TIMESTAMPZ created_at
-        TIMESTAMPZ expire_time
-        ENUM status
-    }
-
-    MediaContent {
-        BIGINT user_id PK
-        binary data
-    }
-    
-    MediaContent |{--|| Tweet : media_content
-    MediaContent |{--|| Comment : media_content
-
-    Session ||--|| User : user_sessions
-```
-
-### Физическая схема БД
-
-![Схема бд](/DB.jpg)
-
-
+| Таблица    | СУБД               | Индексы | Денормализация |  Шардирование | Требование у согласованности |
+| ---        | ----               | ----    | ----           | ----          | ----                         |
+| User      | apache cassandra   | user_id  | -              | по user_id    |  при  status - deleted нельзя перейти на страницу пользователя(но она сохраняется в базе) |
+| Tweet      | apache cassandra   | tweet_id, user_id, created_at  |  популярные твиты собираем в отдельную таблицу | по tweet_id, user_id    |  мягкое удаление |
+| Comment     | apache cassandra   | comment_id, tweet_id, user_id  |  денормализован для быстрого построения дерева комментариев | по comment_id, tweet_id    | при удалении комментария меняется status и становится недоступен текст и вложения комментария, но дерево сохраняется |
+| Subscribe     | apache cassandra   | user_id, subscriber_id  | - |  по user_id    | при удалении комментария меняется status и становится недоступен текст и вложения комментария, но дерево сохраняется |
+| Notification  | apache cassandra   | user_id  | - |  по user_id  | уведомления сохраняются при удалении пользователя |
+| TweetHashtag  | apache cassandra   | hashtag_id, tweet_id  | денормализован hashtag, чтобы не ходить ещё в одну таблицу |  по hashtag  | не удаляются при удалении твита |
+| Session  | Redis   | session_id, user_id  | - |  по session_id, user_id  | cессии действительны до expire_time, при отзыве сессии удаляется запись |
+| MediaContent  | S3   | id  | - | -  | контент не удаляется при удалении tweet, comment, avatar |
+| TweetStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
+| CommentStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
+| SubscribeStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
+| HashtagStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
+| Event  | Kafka   | user_id, action_id  | события сохраняются для дальнейшей обработки(шина данных) | - | - |
 
 ### Список источников:
 1. [X](https://x.com/ "сам твиттер")
