@@ -177,6 +177,54 @@ Anycast балансировка - BGP Anycast.
 
 ![Схема бд](/Highload_Maxorella.png)
 
+User.status(ENUM)
+```
+ACTIVE - обычное состояние
+INACTIVE - пользователь "давно" не заходил
+SHADOWBAN - пользователь находится в теневом бане(его твиты мало показываются в поиске)
+BLOCKED - пользователь заблокирован, за спам и тп
+DELETED - пользователь навсегда заблокирован
+``` 
+
+Tweet.status(ENUM)
+```
+PUBLISHED - обычное состояние
+SHADOWBAN - твит в теневом бане
+DELETED - твит удален
+``` 
+
+Сomment.status(ENUM)
+```
+PUBLISHED - комментарий опубликован
+DELETED - комментарий удален
+```
+
+Subscribe.status(ENUM)
+```
+SUBSCRIBED - пользователь подписан
+UNSUBSCRIBED - пользователь отписался
+BLOCKED - пользователь заблокировал другого пользователя
+```
+Notification.status(ENUM)
+```
+READ - уведомление прочитано
+UNREAD- уведомление не прочитано
+DELETED - уведомление удалено
+```
+HashtagEvent.event_type(ENUM)
+```
+HASHTAG_CREATED - создан новый хештег
+HASHTAG_USED - хештег использован в твите
+HASHTAG_VIEWED - хештег просмотрен пользователем
+HASHTAG_LIKED - хештег лайкнулу
+HASHTAG_RETWEETED - твит с хештегом ретвитнули
+```
+
+User.setting(JSON)
+```
+
+```
+
 | Таблица    | СУБД               | Индексы | Денормализация |  Шардирование | Требование у согласованности |
 | ---        | ----               | ----    | ----           | ----          | ----                         |
 | User      | apache cassandra   | user_id  | -              | по user_id    |  при  status - deleted нельзя перейти на страницу пользователя(но она сохраняется в базе) |
