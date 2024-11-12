@@ -222,8 +222,130 @@ HASHTAG_RETWEETED - твит с хештегом ретвитнули
 
 User.setting(JSON)
 ```
-
+{
+ "showNotifications": true,
+ "language": "en",
+ "theme": "dark",
+ "privacy": {
+  "profile": "public",
+  "tweets": "protected",
+  "directMessages": "private"
+ },
+ "emailNotifications": {
+  "newFollowers": true,
+  "newMentions": true,
+  "directMessages": false
+ }
+}
 ```
+
+User.avatar()
+```
+{
+ "id": 12345,
+ "url": "https://s3.amazonaws.com/bucket/user-avatars/12345.jpg" 
+}
+```
+
+Tweet.media(JSON)
+```
+[
+ {
+  "type": "photo",
+  "id": 67890, // ID записи в MediaContent
+  "order": 1
+  "url": "https://s3.amazonaws.com/bucket/tweet-media/67890.jpg"
+ },
+ {
+  "type": "video",
+  "id": 123456,
+  "order": 2
+  "url": "https://s3.amazonaws.com/bucket/tweet-media/123456.mp4" 
+ }
+]
+```
+
+
+Comment.media(JSON)
+```
+{
+ "type": "photo",
+ "id": 78901, // ID записи в MediaContent
+ "url": "https://s3.amazonaws.com/bucket/comment-media/78901.jpg"
+}
+```
+
+MediaContent.media(JSON)
+```
+{
+ "id": 12345,
+ "size": 1234567,
+ "type": "image/jpeg" 
+}
+```
+
+
+| Таблица | Индексы |
+| --- | --- |
+| User | user_id, username |
+|Tweet | tweet_id, user_id, parent_id |
+| TweetActivity | tweet_id |
+| TweetSearch | tweet_id |
+| Comment | comment_id, tweet_id, parent_comment_id |
+| Subscribe | user_id, subscriber_id |
+| Notification | user_id |
+| TweetHashtag | hashtag |
+| Session | session_id, user_id |
+| MediaContent | id |
+| TweetStat | id |
+| CommentStat | id |
+| CommentActivity | comment_id, author_id |
+| SubscribeStat | id, user_id |
+| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | action_id |
+
+
+| Таблица | СУБД | пояснение |
+| --- | --- | --- |
+| User, Tweet, Comment, Subscribe, Notification, TweetActivity, CommentActivity | Apache Cassandra | Cassandra отлично подходит для больших объемов данных, которые часто изменяются, удобно и быстро масштабируется и шардируется. Не требует заранее определенной схемы, поэтому ее легко изменять. |
+| TweetHashtag, TweetSearch | ElasticSearch | подходит для поиска твитов с конкретным хэштегом или схожим |
+| Session | Redis | In-memory база с быстрым доступом, подходит для хранения сессий |
+| MediaContent | S3 | Облачное хранилище. Идеальный выбор для хранения больших объемов медиа-файлов. |
+| SubscribeStat, TweetStat, CommentStat | ClickHouse | для аналитиков, можно находить популярных пользователей и оптимизировать хранение их твитов, комментариев и т.п. |
+| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | Kafka | отбиваем статистику в clickhouse и в cassandra |
+
+
+| Таблица | Шардирование |
+| --- | --- |
+| User | по user_id |
+|Tweet | по tweet_id и user_id |
+| TweetActivity | по tweet_id |
+| TweetSearch, TweetHashtag | по hashtag |
+| Comment | по tweet_id, чтобы комменты от одного твита в одном шарде были |
+| Subscribe | по user_id, чтобы в одном шарде хранились все подпищики на пользователя |
+| Notification | по user_id |
+| Session | по user_id |
+| MediaContent | по id |
+| TweetStat, CommentStat, SubscribeStat, HashtagStat | id |
+| CommentActivity | по comment_id |
+| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | по action_id |
+| TweetSearch | по tweet_id |
+
+| Таблица | Резервирование |а
+| --- | --- |
+| User | по user_id |
+|Tweet | по tweet_id и user_id |
+| TweetActivity | по tweet_id |
+| TweetSearch, TweetHashtag | по hashtag |
+| Comment | по tweet_id, чтобы комменты от одного твита в одном шарде были |
+| Subscribe | по user_id, чтобы в одном шарде хранились все подпищики на пользователя |
+| Notification | по user_id |
+| Session | по user_id |
+| MediaContent | по id |
+| TweetStat, CommentStat, SubscribeStat, HashtagStat | id |
+| CommentActivity | по comment_id |
+| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | по action_id |
+| TweetSearch | по tweet_id |
+
 
 | Таблица    | СУБД               | Индексы | Денормализация |  Шардирование | Требование у согласованности |
 | ---        | ----               | ----    | ----           | ----          | ----                         |
