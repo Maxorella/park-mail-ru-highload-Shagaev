@@ -316,8 +316,8 @@ MediaContent.media(JSON)
 
 
 | Таблица | Шардирование |
-| --- | --- |
-| User | по user_id |
+| --- | --- |  --- |
+| User | по user_id | master-slave реплики|
 |Tweet | по tweet_id и user_id |
 | TweetActivity | по tweet_id |
 | TweetSearch, TweetHashtag | по hashtag |
@@ -342,23 +342,6 @@ MediaContent.media(JSON)
 | MediaContent | |
 | SubscribeStat, TweetStat, CommentStat | |
 | TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent |  |
-
-
-| Таблица    | СУБД               | Индексы | Денормализация |  Шардирование | Требование у согласованности |
-| ---        | ----               | ----    | ----           | ----          | ----                         |
-| User      | apache cassandra   | user_id  | -              | по user_id    |  при  status - deleted нельзя перейти на страницу пользователя(но она сохраняется в базе) |
-| Tweet      | apache cassandra   | tweet_id, user_id, created_at  |  популярные твиты собираем в отдельную таблицу | по tweet_id, user_id    |  мягкое удаление |
-| Comment     | apache cassandra   | comment_id, tweet_id, user_id  |  денормализован для быстрого построения дерева комментариев | по comment_id, tweet_id    | при удалении комментария меняется status и становится недоступен текст и вложения комментария, но дерево сохраняется |
-| Subscribe     | apache cassandra   | user_id, subscriber_id  | - |  по user_id    | при удалении комментария меняется status и становится недоступен текст и вложения комментария, но дерево сохраняется |
-| Notification  | apache cassandra   | user_id  | - |  по user_id  | уведомления сохраняются при удалении пользователя |
-| TweetHashtag  | apache cassandra   | hashtag_id, tweet_id  | денормализован hashtag, чтобы не ходить ещё в одну таблицу |  по hashtag  | не удаляются при удалении твита |
-| Session  | Redis   | session_id, user_id  | - |  по session_id, user_id  | cессии действительны до expire_time, при отзыве сессии удаляется запись |
-| MediaContent  | S3   | id  | - | -  | контент не удаляется при удалении tweet, comment, avatar |
-| TweetStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
-| CommentStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
-| SubscribeStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
-| HashtagStat  | ClickHouse   | tweet_id  | дублирование данных для аналитики | - | - |
-| Event  | Kafka   | user_id, action_id  | события сохраняются для дальнейшей обработки(шина данных) | - | - |
 
 ### Алгоритмы
 
