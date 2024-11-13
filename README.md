@@ -302,11 +302,12 @@ MediaContent.media(JSON)
 | CommentActivity | comment_id, author_id |
 | SubscribeStat | id, user_id |
 | TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | action_id |
-
+| TweetLike | tweet_id |
+| CommentLike | comment_id |
 
 | Таблица | СУБД | пояснение |
 | --- | --- | --- |
-| User, Tweet, Comment, Subscribe, Notification, TweetActivity, CommentActivity | Apache Cassandra | Cassandra отлично подходит для больших объемов данных, которые часто изменяются, удобно и быстро масштабируется и шардируется. Не требует заранее определенной схемы, поэтому ее легко изменять. |
+| User, Tweet, Comment, Subscribe, Notification, TweetActivity, CommentActivity, TweetLike, CommentLike | Apache Cassandra | Cassandra отлично подходит для больших объемов данных, которые часто изменяются, удобно и быстро масштабируется и шардируется. Не требует заранее определенной схемы, поэтому ее легко изменять. |
 | TweetHashtag, TweetSearch | ElasticSearch | подходит для поиска твитов с конкретным хэштегом или схожим |
 | Session | Redis | In-memory база с быстрым доступом, подходит для хранения сессий |
 | MediaContent | S3 | Облачное хранилище. Идеальный выбор для хранения больших объемов медиа-файлов. |
@@ -329,22 +330,18 @@ MediaContent.media(JSON)
 | CommentActivity | по comment_id |
 | TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | по action_id |
 | TweetSearch | по tweet_id |
+| TweetLike | по tweet_id |
+| CommentLike | по comment_id |
 
-| Таблица | Резервирование |а
+
+| Таблица | Резервирование |
 | --- | --- |
-| User | по user_id |
-|Tweet | по tweet_id и user_id |
-| TweetActivity | по tweet_id |
-| TweetSearch, TweetHashtag | по hashtag |
-| Comment | по tweet_id, чтобы комменты от одного твита в одном шарде были |
-| Subscribe | по user_id, чтобы в одном шарде хранились все подпищики на пользователя |
-| Notification | по user_id |
-| Session | по user_id |
-| MediaContent | по id |
-| TweetStat, CommentStat, SubscribeStat, HashtagStat | id |
-| CommentActivity | по comment_id |
-| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent | по action_id |
-| TweetSearch | по tweet_id |
+| User, Tweet, Comment, Subscribe, Notification, TweetActivity, CommentActivity, TweetLike, CommentLike |  |
+| TweetHashtag, TweetSearch |  |
+| Session | |
+| MediaContent | |
+| SubscribeStat, TweetStat, CommentStat | |
+| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent |  |
 
 
 | Таблица    | СУБД               | Индексы | Денормализация |  Шардирование | Требование у согласованности |
