@@ -316,8 +316,8 @@ MediaContent.media(JSON)
 
 
 | Таблица | Шардирование |
-| --- | --- |  --- |
-| User | по user_id | master-slave реплики|
+| --- | --- |
+| User | по user_id |
 |Tweet | по tweet_id и user_id |
 | TweetActivity | по tweet_id |
 | TweetSearch, TweetHashtag | по hashtag |
@@ -336,12 +336,11 @@ MediaContent.media(JSON)
 
 | Таблица | Резервирование |
 | --- | --- |
-| User, Tweet, Comment, Subscribe, Notification, TweetActivity, CommentActivity, TweetLike, CommentLike |  |
-| TweetHashtag, TweetSearch |  |
-| Session | |
-| MediaContent | |
-| SubscribeStat, TweetStat, CommentStat | |
-| TweetEvent, CommentEvent, SubscribeEvent, HashtagEvent |  |
+| Apache Cassandra | Snapshot, master-slave реплики |
+| Redis | RDB (Redis Database Backup); AOF (Append Only File) |
+| S3 | Имеет встроенное резервирование |
+| ClickHouse | Имеет встроенное резервирование |
+| Kafka | Без резервирования, если в случае сбоя будут потери данных - некритично... |
 
 ### Алгоритмы
 
