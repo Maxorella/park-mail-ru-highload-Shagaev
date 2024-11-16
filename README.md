@@ -380,10 +380,21 @@ MediaContent.media(JSON)
 
 ![Схема проекта](/Project_schema.png)
 
-### Отказоустойчивость
+### Обеспечение надёжности
 
-1. 
-2. 
+| Компонент | Способ резервирования/ обесп надежности |
+| --- | --- |
+| Auth Service | Сохранение в кеш сессий, в случае отказа Redis, часть сессий будет доступна |
+| User Service | Сохранение в кеш информации о популярных пользователях |
+| Tweet Service | при создании новых твитов они записываются в outbox_data, чтобы после передать в Search Service; в кэше хранятся твиты от "популярных" пользователей  |
+| Rec. Service | - (резервирование в Search Service) |
+| Search Service | если не работает Rec. Service, то пытаемся по "упрощенному рекомендательному алгоритму" получить твиты или проверяем кеш для популярных запросов  |
+| Hashtag Service | при добавлении нового хештега обновляются данные в Search Service и Stats Service  |
+| Stats Service | кеш кол-во лайков|
+| File Service | - |
+
+| --- | --- |
+
 ### Список источников:
 1. [X](https://x.com/ "сам твиттер")
 2. [Statista](https://www.statista.com/statistics/242606/number-of-active-twitter-users-in-selected-countries/)
