@@ -96,7 +96,7 @@ MVP функционал:
 | написание комментария | 15000  | 37500 |
 | написания твита | 6000 | 15000  | 
 | репост твита | 4276  | 10691  |
-| проверка авторизации + авторизация | 200000 | 250000 |
+| проверка авторизации + авторизация | 20000 | 25000 |
 | изменение настроек профиля | 200 | 450 |
 | подписка на / отписка от пользователя | 600 | 1500 |
 
@@ -393,7 +393,74 @@ MediaContent.media(JSON)
 | Stats Service | кеш кол-во лайков|
 | File Service | - |
 
+Список серверов
+
+| RPS | средний | пик |
+| ---  | ---- | --- |
+| получение твита | 125787  | 314467 |
+| лайк твита | 25157  | 62892 |
+| поиск твита | 25574  | 62835 |
+| написание комментария | 15000  | 37500 |
+| написания твита | 6000 | 15000  | 
+| репост твита | 4276  | 10691  |
+| проверка авторизации + авторизация | 20000 | 25000 |
+| изменение настроек профиля | 200 | 450 |
+| подписка на / отписка от пользователя | 600 | 1500 |
+
+Приведем таблицу расчета RPS из дз3, объединим RPS в сервисы
+| Сервис | RPS |
+| --- | --- | 
+| Auth Service | 10000 |
+| User Service | 450+1500= 1950 | 
+| Tweet Service | 314467  |
+| Rec. Service | 62835+314467 = 377302 |
+| Comment Service | 37500 |
+| Search Service | 62835 |
+| Hashtag Service | 15000+62835 = 77835 |
+| Stats Service | 62892 |
+| File Service  | 314467 |
+| API Gateway | 946781  |
+| Суммарный | 1261248 |
+
+В исследовании nginx сказано, что сервер с 24 CPU выдерживает 10,274 HTTPS CPS
+1261248 / 10 274 = 122.6 Получаем 123 сервера.
+
+Конфигурация для nginx
+| Параметр | Значение |
 | --- | --- |
+| CPU | 24 |
+| Network | --- |
+| Кол-во | 123 |
+
+Микросервисы:
+1 ядро CPU на 50 и 1 ГБ RAM на 500 запросов
+
+| Сервис | CPU | RAM | Net |
+| --- | --- | --- | --- |
+| Auth Service | 200 | 20 |
+| User Service |  39 | 4 |
+| Tweet Service | 6289 | 629 |
+| Rec. Service | 7546 | 755 |
+| Comment Service | 750 | 75 |
+| Search Service | 1257 | 126 |
+| Hashtag Service | 1557 | 156 |
+| Stats Service | 1258 | 126 |
+| File Service | 6289 | 629 |
+| API Gateway | 18936 | 1894 |
+
+| Сервис | Конфиг | количество |
+| --- | --- | --- |
+| Nginx | 24 core CPU; 4x8 GB RAM 2400 MHz DDR4 | 123 |
+| Auth Service | 8 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 25 |
+| User Service |  4 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 10 |
+| Tweet Service | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 197 |
+| Rec. Service | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 236 |
+| Comment Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 47 |
+| Search Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 79 |
+| Hashtag Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 98 |
+| Stats Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 79 |
+| File Service | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 197 |
+| API Gateway | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 592 |
 
 ### Список источников:
 1. [X](https://x.com/ "сам твиттер")
