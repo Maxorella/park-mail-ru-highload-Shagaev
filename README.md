@@ -318,7 +318,7 @@ MediaContent.media(JSON)
 | Таблица | Шардирование |
 | --- | --- |
 | User | по user_id |
-|Tweet | по tweet_id и user_id |
+|Tweet | по tweet_id |
 | TweetActivity | по tweet_id |
 | TweetSearch, TweetHashtag | по hashtag |
 | Comment | по tweet_id, чтобы комменты от одного твита в одном шарде были |
