@@ -334,11 +334,12 @@ MediaContent.media(JSON)
 | CommentLike | по comment_id |
 
 
-| Таблица | Резервирование |
+| База данных | Резервирование |
 | --- | --- |
 | Apache Cassandra | Snapshot, master-slave реплики |
 | Redis | RDB (Redis Database Backup); AOF (Append Only File) |
 | S3 | Имеет встроенное резервирование |
+| ElasticSearch | snapshot | 
 | ClickHouse | Имеет встроенное резервирование |
 | Kafka | Без резервирования, если в случае сбоя будут потери данных - некритично... |
 
@@ -396,7 +397,7 @@ MediaContent.media(JSON)
 | Stats Service | кеш кол-во лайков|
 | File Service | - |
 
-Список серверов
+### Список серверов
 
 | RPS | средний | пик |
 | ---  | ---- | --- |
@@ -416,10 +417,8 @@ MediaContent.media(JSON)
 | Auth Service | 10000 |
 | User Service | 450+1500= 1950 | 
 | Tweet Service | 314467  |
-| Rec. Service | 62835+314467 = 377302 |
 | Comment Service | 37500 |
 | Search Service | 62835 |
-| Hashtag Service | 15000+62835 = 77835 |
 | Stats Service | 62892 |
 | File Service  | 314467 |
 | API Gateway | 946781  |
@@ -443,27 +442,37 @@ MediaContent.media(JSON)
 | Auth Service | 200 | 20 |
 | User Service |  39 | 4 |
 | Tweet Service | 6289 | 629 |
-| Rec. Service | 7546 | 755 |
 | Comment Service | 750 | 75 |
 | Search Service | 1257 | 126 |
-| Hashtag Service | 1557 | 156 |
 | Stats Service | 1258 | 126 |
 | File Service | 6289 | 629 |
 | API Gateway | 18936 | 1894 |
 
-| Сервис | Конфиг | количество |
-| --- | --- | --- |
-| Nginx | 24 core CPU; 4x8 GB RAM 2400 MHz DDR4 | 123 |
-| Auth Service | 8 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 25 |
-| User Service |  4 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 10 |
-| Tweet Service | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 197 |
-| Rec. Service | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 236 |
-| Comment Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 47 |
-| Search Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 79 |
-| Hashtag Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 98 |
-| Stats Service | 16 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 79 |
-| File Service | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 197 |
-| API Gateway | 32 core CPU; 1х8 GB RAM 2400 MHz DDR4 | 592 |
+| Сервис | Конфиг | количество | Стоимость аренды сервера (USD/мес) | Стоимость покупки сервера (USD) |
+| --- | --- | --- | --- | --- |
+| Nginx | 56 core CPU; 4x16 GB RAM 2933 MHz DDR4 | 62 | 21000 | 1240000 |
+| Auth Service | 8 core CPU; 1х4 GB RAM 2400 MHz DDR4 | 25 | 1250 | 75000 |
+| User Service |  4 core CPU; 1х8 GB RAM 2933 MHz DDR4 | 12 | 400 | 24000 |
+| Tweet Service | 128 core CPU; 2х16 GB RAM 2933 MHz DDR4 | 50  | 35000 | 2000000 |
+| Comment Service | 64 core CPU; 2х8 GB RAM 2933 MHz DDR4 | 24 | 9600 | 576000 |
+| Search Service | 64 core CPU; 2х8 GB RAM 2933 MHz DDR4 | 20 | 8000 | 480000 |
+| Stats Service | 64 core CPU; 2х8 GB RAM 2933 MHz DDR4 | 20 | 8000 | 480000 |
+| File Service | 128 core CPU; 2х16 GB RAM 2933 MHz DDR4 | 50 | 35000 | 2000000 |
+| API Gateway | 128 core CPU; 2х16 GB RAM 2933 MHz DDR4 | 150 | 100000 | 6000000 |
+
+Стоимость аренды: 6437650/мес
+
+Общая стоимость покупки с амортизацией на 5 лет: 210000/мес
+
+Покупка своих сервреров значительно дешевле, чем аренда серверов.
+
+| Название БД | Сервис | Нагрузка | CPU | RAM | Cnt |
+| ---         |  ---   |   ---    | --- | --- | --- |
+| Apache Cassandra | User, Tweet, Comment | 2000+314467+37500=353967 | 32 | 128ГБ | 12 |
+| Redis | Auth |   10000    | 8 | 32ГБ | 12 |
+| ElasticSearch | Search | 62835 | 32 | 128ГБ | 12 |
+| S3     | Search, File   | 314467 | --- | --- | --- |
+| ClickHouse     | Stats   | 62892 | 32 | 128ГБ | 12 |
 
 ### Список источников:
 1. [X](https://x.com/ "сам твиттер")
